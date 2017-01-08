@@ -15,7 +15,8 @@ Loading and preprocessing the data
 3) Process / transform the data
 
 
-```{r setup, echo=TRUE}
+
+```r
 setwd('C:/Sakthi/Study Materials/Data Science/Course - 5')
 Inptfl <- read.csv('activity.csv')
 Inptfl$date <- strptime(Inptfl$date, "%Y-%m-%d")
@@ -27,8 +28,8 @@ What is mean total number of steps taken per day?
 2) Make a histogram of the total number of steps taken each day
 3) Calculate and report the mean and median of the total number of steps taken per day
 
-```{r}
 
+```r
 Inptfl1 <- Inptfl[c("steps", "date")]
 Inptfl1 <- na.omit(Inptfl1)
 
@@ -38,15 +39,29 @@ totalStepsPerDay <- ddply(Inptfl1, .(date), summarize, sum_x=sum(steps))
 
 # Plot a (pseudo) histogram where the x-axis denotes the day and the y-axis denotes the total number of steps taken for each day :
 plot(totalStepsPerDay, main="Histogram of steps taken each day", xlab="Date (October to November 2012)", ylab="Frequency", type="h", lwd=4, col="blue")
+```
 
+<img src="PA1_template_files/figure-html/unnamed-chunk-1-1.png" width="672" />
+
+```r
 totalStepsPerDay <- ddply(Inptfl1, .(date), summarise, "sum"=sum(steps) ,"mean"=mean(steps)) 
 #Median
 median_x <- median(totalStepsPerDay$sum)
 median_x
+```
 
+```
+## [1] 10765
+```
+
+```r
 # Mean
 mean_x <- mean(totalStepsPerDay$sum)
 mean_x
+```
+
+```
+## [1] 10766.19
 ```
 
 What is the average daily activity pattern?
@@ -54,8 +69,8 @@ What is the average daily activity pattern?
 1) Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 2) Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
 
+```r
 # Split up the data according to the interval
 intervalSplit <- split(Inptfl$steps, Inptfl$interval)
 
@@ -70,7 +85,11 @@ plot(uniqueIntervals, averageStepsPerInterval, type="l",
      main="Average number of steps per interval across all days", 
      xlab="Interval", ylab="Average # of steps across all days", 
      lwd=2, col="blue")
+```
 
+<img src="PA1_template_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+
+```r
 # Find the location of where the maximum is
 maxIntervalDays <- max(averageStepsPerInterval, na.rm=TRUE)
 maxIndex <- as.numeric(which(averageStepsPerInterval == maxIntervalDays))
@@ -78,6 +97,10 @@ maxIndex <- as.numeric(which(averageStepsPerInterval == maxIntervalDays))
 #Maximum number of steps
 maxInterval <- uniqueIntervals[maxIndex]
 maxInterval
+```
+
+```
+## [1] 835
 ```
 
 Inputing missing values
@@ -89,13 +112,56 @@ Note that there are a number of days/intervals where there are missing values (c
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 #Total number of missing values
 numMissingValues <- sum(is.na(Inptfl$steps))
 numMissingValues
+```
 
+```
+## [1] 2304
+```
+
+```r
 #Fill missing values
 library(Hmisc)
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## Loading required package: survival
+```
+
+```
+## Loading required package: Formula
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```
+## 
+## Attaching package: 'Hmisc'
+```
+
+```
+## The following objects are masked from 'package:plyr':
+## 
+##     is.discrete, summarize
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     format.pval, round.POSIXt, trunc.POSIXt, units
+```
+
+```r
 InptflImputed <- Inptfl
 InptflImputed$steps <- impute(Inptfl$steps, fun=mean)
 
@@ -103,14 +169,28 @@ stepsByDayImputed <- ddply(InptflImputed, .(date), summarise, "steps"=sum(steps)
 
 #Make Histogram
 plot(stepsByDayImputed, main="Histogram of steps taken each day(Imputed)", xlab="Total steps per day (Imputed)", ylab="Frequency", type="h", lwd=4, col="blue")
+```
 
+<img src="PA1_template_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+
+```r
 #Median after Impute
 median_x <- median(stepsByDayImputed$steps)
 median_x
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 # Mean after Impute
 mean_x <- mean(stepsByDayImputed$steps)
 mean_x
+```
+
+```
+## [1] 10766.19
 ```
 
 Are there differences in activity patterns between weekdays and weekends?
@@ -118,7 +198,8 @@ Are there differences in activity patterns between weekdays and weekends?
 1) Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 2) Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r}
+
+```r
 InptflImputed$dateType <-  ifelse(as.POSIXlt(InptflImputed$date)$wday %in% c(0,6), 'weekend', 'weekday')
 
 averagedActivityDataImputed <- aggregate(steps ~ interval + dateType, data=InptflImputed, mean)
@@ -128,3 +209,5 @@ ggplot(averagedActivityDataImputed, aes(interval, steps)) +
     xlab("5-minute interval") + 
     ylab("avarage number of steps")
 ```
+
+<img src="PA1_template_files/figure-html/unnamed-chunk-4-1.png" width="672" />
